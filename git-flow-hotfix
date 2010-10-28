@@ -165,7 +165,7 @@ cmd_start() {
 	require_branch_absent "$BRANCH"
 	require_tag_absent "$VERSION_PREFIX$VERSION"
 	if flag fetch; then
-		git fetch -q "$ORIGIN" "$MASTER_BRANCH"
+		git fetch -q "$ORIGIN" "$MASTER_BRANCH" || echo "Unable to fetch from $ORIGIN"
 	fi
 	if has "$ORIGIN/$MASTER_BRANCH" "$(git_remote_branches)"; then
 		require_branches_equal "$MASTER_BRANCH" "$ORIGIN/$MASTER_BRANCH"
@@ -209,9 +209,9 @@ cmd_finish() {
 	require_clean_working_tree
 	if flag fetch; then
 		git fetch -q "$ORIGIN" "$MASTER_BRANCH" || \
-		  die "Could not fetch $MASTER_BRANCH from $ORIGIN."
+		  echo "Could not fetch $MASTER_BRANCH from $ORIGIN."
 		git fetch -q "$ORIGIN" "$DEVELOP_BRANCH" || \
-		  die "Could not fetch $DEVELOP_BRANCH from $ORIGIN."
+		  echo "Could not fetch $DEVELOP_BRANCH from $ORIGIN."
 	fi
 	if has "$ORIGIN/$MASTER_BRANCH" "$(git_remote_branches)"; then
 		require_branches_equal "$MASTER_BRANCH" "$ORIGIN/$MASTER_BRANCH"
@@ -266,15 +266,15 @@ cmd_finish() {
 
 	if flag push; then
 		git push "$ORIGIN" "$DEVELOP_BRANCH" || \
-			die "Could not push to $DEVELOP_BRANCH from $ORIGIN."
+			echo "Could not push to $DEVELOP_BRANCH from $ORIGIN."
 		git push "$ORIGIN" "$MASTER_BRANCH" || \
-			die "Could not push to $MASTER_BRANCH from $ORIGIN."
+			echo "Could not push to $MASTER_BRANCH from $ORIGIN."
 		if noflag notag; then
 			git push "$ORIGIN" "$tagname" || \
-				die "Could not push tags to $ORIGIN."
+				echo "Could not push tags to $ORIGIN."
 		fi
 	    if has "$ORIGIN/$BRANCH" "$(git_remote_branches)"; then
-            git push "$ORIGIN" :"$BRANCH" || die "Could not delete $BRANCH from $ORIGIN."
+            git push "$ORIGIN" :"$BRANCH" || echo "Could not delete $BRANCH from $ORIGIN."
         fi
 	fi
 

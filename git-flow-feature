@@ -204,7 +204,7 @@ cmd_start() {
 
 	# update the local repo with remote changes, if asked
 	if flag fetch; then
-		git fetch -q "$ORIGIN" "$DEVELOP_BRANCH"
+		git fetch -q "$ORIGIN" "$DEVELOP_BRANCH" || echo "Unable to fetch from $ORIGIN."
 	fi
 
 	# if the origin branch counterpart exists, assert that the local branch
@@ -285,7 +285,7 @@ cmd_finish() {
 	# update local repo with remote changes first, if asked
 	if has "$ORIGIN/$BRANCH" "$(git_remote_branches)"; then
 		if flag fetch; then
-			git fetch -q "$ORIGIN" "$BRANCH"
+			git fetch -q "$ORIGIN" "$BRANCH" || echo "Unable to fetch from $ORIGIN."
 		fi
 	fi
 
@@ -344,7 +344,10 @@ helper_finish_cleanup() {
 
 	# delete branch
 	if flag fetch; then
-		git push "$ORIGIN" ":refs/heads/$BRANCH"
+
+	    if has "$ORIGIN/$BRANCH" "$(git_remote_branches)"; then
+		    git push "$ORIGIN" ":refs/heads/$BRANCH" || echo "Unable to delete $BRANCH from $ORIGIN."
+        fi
 	fi
 	
 	

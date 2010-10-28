@@ -101,6 +101,10 @@ git_local_branch_exists() {
 	has $1 $(git_local_branches)
 }
 
+git_remote_branch_exists() {
+	has $1 $(git_remote_branches)
+}
+
 git_branch_exists() {
 	has $1 $(git_all_branches)
 }
@@ -158,12 +162,28 @@ git_is_branch_merged_into() {
 
 # check if this repo has been inited for gitflow
 gitflow_has_master_configured() {
+    local ORIGIN=$(git config --get gitflow.origin || echo origin)
 	local master=$(git config --get gitflow.branch.master)
-	[ "$master" != "" ] && git_local_branch_exists "$master"
+    if [ "$master" != "" ]; then
+        if git_remote_branch_exists "$ORIGIN/$master"; then
+            if ! git_local_branch_exists "$master"; then
+                git branch --track "$master" "$ORIGIN/$master" || die "Unable to track remote branch $master"
+            fi
+        fi
+	fi
+    [ "$master" != "" ] && git_local_branch_exists "$master"
 }
 
 gitflow_has_develop_configured() {
+    local ORIGIN=$(git config --get gitflow.origin || echo origin)
 	local develop=$(git config --get gitflow.branch.develop)
+    if [ "$develop" != "" ]; then
+        if git_remote_branch_exists "$ORIGIN/$develop"; then
+            if ! git_local_branch_exists "$develop"; then
+                git branch --track "$develop" "$ORIGIN/$develop" || die "Unable to track remote branch $develop"
+            fi
+        fi
+	fi
 	[ "$develop" != "" ] && git_local_branch_exists "$develop"
 }
 

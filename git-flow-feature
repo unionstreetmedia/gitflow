@@ -333,6 +333,8 @@ cmd_finish() {
 
 	# when no merge conflict is detected, just clean up the feature branch
 	helper_finish_cleanup
+
+    git push origin "$DEVELOP_BRANCH" || echo "Could not push $DEVELOP_BRANCH up to the server."
 }
 
 helper_finish_cleanup() {
